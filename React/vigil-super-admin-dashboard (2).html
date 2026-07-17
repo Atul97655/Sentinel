@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vigil | Super Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#151A3B;
+    --navy-2:#1D2350;
+    --blue:#4F5AF1;
+    --blue-light:#eef0ff;
+    --red:#F1544F;
+    --red-light:#fdecec;
+    --green:#12B76A;
+    --green-light:#e8faf0;
+    --gold:#F4A83B;
+    --sky:#3B9EF4;
+    --sky-light:#e9f4ff;
+    --text-dark:#1B1E33;
+    --text-mid:#6B7080;
+    --text-light:#9598A6;
+    --border:#EDEEF2;
+    --bg:#F6F7FB;
+    --card:#ffffff;
+    --radius:14px;
+    --shadow: 0 2px 10px rgba(20,20,50,0.04);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{text-decoration:none; color:inherit;}
+  ul{list-style:none;}
+  button{font-family:inherit; cursor:pointer;}
+  svg{display:block; flex-shrink:0;}
+  .icon{stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+
+  /* ---------------- Layout ---------------- */
+  .app{
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* ---------------- Sidebar ---------------- */
+  .sidebar{
+    width:264px;
+    flex-shrink:0;
+    background:var(--navy);
+    color:#c9cbe0;
+    display:flex;
+    flex-direction:column;
+    position:fixed;
+    top:0; left:0; bottom:0;
+    z-index:100;
+    transition:transform .3s ease;
+  }
+  .sidebar-brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:22px 22px 18px;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .brand-icon{
+    width:38px; height:38px;
+    background:linear-gradient(135deg,#4F5AF1,#2f3699);
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    color:#28d17c;
+    flex-shrink:0;
+  }
+  .brand-icon svg{width:20px; height:20px;}
+  .brand-text .brand-title{
+    font-size:17px; font-weight:800; color:#fff; letter-spacing:0.5px;
+  }
+  .brand-text .brand-sub{
+    font-size:11px; color:#8d90ad; letter-spacing:1px; text-transform:uppercase;
+  }
+  .sidebar-scroll{
+    flex:1;
+    overflow-y:auto;
+    padding:18px 14px 10px;
+  }
+  .sidebar-scroll::-webkit-scrollbar{width:5px;}
+  .sidebar-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12); border-radius:10px;}
+
+  .menu-label{
+    font-size:11px;
+    font-weight:700;
+    color:#6f7295;
+    letter-spacing:1.2px;
+    padding:6px 12px 10px;
+  }
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 14px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:500;
+    color:#b7b9d4;
+    margin-bottom:3px;
+    position:relative;
+    transition:background .15s ease, color .15s ease;
+  }
+  .nav-item svg.left-icon{width:18px; height:18px; color:#9698bd; flex-shrink:0;}
+  .nav-item svg.chev{margin-left:auto; width:13px; height:13px; opacity:.6;}
+  .nav-item:hover{background:rgba(255,255,255,0.06); color:#fff;}
+  .nav-item.active{
+    background:linear-gradient(90deg,#4F5AF1,#5c62f5);
+    color:#fff;
+    box-shadow:0 4px 14px rgba(79,90,241,0.35);
+  }
+  .nav-item.active svg.left-icon{color:#fff;}
+
+  .sidebar-footer{
+    padding:16px 14px 20px;
+    border-top:1px solid rgba(255,255,255,0.06);
+  }
+  .profile-card{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 10px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.04);
+    margin-bottom:6px;
+  }
+  .profile-avatar{
+    width:38px; height:38px; border-radius:50%;
+    background:linear-gradient(135deg,#ffb199,#ff8a71);
+    display:flex; align-items:center;justify-content:center;
+    font-weight:700; color:#fff; font-size:14px;
+    flex-shrink:0;
+  }
+  .profile-info .p-name{font-size:13.5px; font-weight:700; color:#fff;}
+  .profile-info .p-email{font-size:11px; color:#8d90ad;}
+  .profile-info .p-status{font-size:10.5px; color:#28d17c; display:flex; align-items:center; gap:4px; margin-top:2px;}
+  .p-status .dot{width:6px;height:6px;border-radius:50%;background:#28d17c;display:inline-block;}
+  .logout-link{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px;
+    font-size:13.5px; font-weight:600; color:#b7b9d4;
+    border-radius:10px;
+  }
+  .logout-link svg{width:16px; height:16px;}
+  .logout-link:hover{background:rgba(255,255,255,0.06); color:#fff;}
+
+  /* ---------------- Main ---------------- */
+  .main{
+    margin-left:264px;
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .topbar{
+    height:76px;
+    background:#fff;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 30px;
+    position:sticky;
+    top:0;
+    z-index:50;
+    gap:16px;
+  }
+  .burger{
+    display:none;
+    color:var(--text-mid);
+    background:none;
+    border:none;
+    align-items:center;
+  }
+  .burger svg{width:21px; height:21px;}
+  .search-box{
+    flex:1;
+    max-width:420px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--bg);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 16px;
+  }
+  .search-box svg{color:var(--text-light); width:16px; height:16px;}
+  .search-box input{
+    border:none; outline:none; background:transparent;
+    font-size:13.5px; width:100%; color:var(--text-dark);
+  }
+  .top-actions{display:flex; align-items:center; gap:18px; flex-shrink:0;}
+  .icon-btn{
+    width:40px;height:40px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--bg); border:1px solid var(--border);
+    color:var(--text-mid); position:relative;
+  }
+  .icon-btn svg{width:17px; height:17px;}
+  .icon-btn .badge{
+    position:absolute; top:-4px; right:-4px;
+    background:var(--red); color:#fff;
+    font-size:10px; font-weight:700;
+    min-width:17px; height:17px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border:2px solid #fff;
+  }
+  .avatar-circle{
+    width:40px;height:40px;border-radius:50%;
+    background:linear-gradient(135deg,#4F5AF1,#7a80f6);
+    color:#fff; font-weight:700; font-size:14px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .content{
+    padding:28px 30px 50px;
+  }
+
+  .page-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .page-head h1{font-size:24px; font-weight:800; color:var(--text-dark);}
+  .page-head p{font-size:13.5px; color:var(--text-mid); margin-top:4px;}
+  .head-actions{display:flex; gap:12px;}
+  .btn{
+    display:flex; align-items:center; gap:8px;
+    font-size:13.5px; font-weight:600;
+    padding:11px 18px; border-radius:10px;
+    border:1px solid var(--border);
+    background:#fff; color:var(--text-dark);
+    white-space:nowrap;
+  }
+  .btn svg{width:15px; height:15px;}
+  .btn:hover{background:var(--bg);}
+  .btn-primary{
+    background:linear-gradient(135deg,#4F5AF1,#3d47d6);
+    color:#fff; border:none;
+    box-shadow:0 6px 16px rgba(79,90,241,0.30);
+  }
+  .btn-primary:hover{filter:brightness(1.05);}
+
+  /* Stat cards */
+  .stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    margin-bottom:24px;
+  }
+  .stat-card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:22px 22px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+  }
+  .stat-top{display:flex; align-items:center; gap:14px; margin-bottom:16px;}
+  .stat-icon{
+    width:46px;height:46px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .stat-icon svg{width:21px; height:21px;}
+  .stat-icon.blue{background:var(--blue-light); color:var(--blue);}
+  .stat-icon.red{background:var(--red-light); color:var(--red);}
+  .stat-icon.green{background:var(--green-light); color:var(--green);}
+  .stat-icon.sky{background:var(--sky-light); color:var(--sky);}
+  .stat-label{font-size:12px; font-weight:700; color:var(--text-light); letter-spacing:0.5px; text-transform:uppercase;}
+  .stat-value{font-size:30px; font-weight:800; color:var(--text-dark); margin-top:2px;}
+  .stat-trend{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:12px; font-weight:700;
+    padding:5px 10px; border-radius:8px;
+  }
+  .stat-trend svg{width:12px; height:12px;}
+  .stat-trend.up{background:var(--blue-light); color:var(--blue);}
+  .stat-trend.down{background:var(--red-light); color:var(--red);}
+  .stat-trend.upgreen{background:var(--green-light); color:var(--green);}
+  .stat-trend.neutral{background:var(--sky-light); color:var(--sky);}
+
+  /* Charts row */
+  .charts-grid{
+    display:grid;
+    grid-template-columns: 1.7fr 1fr;
+    gap:20px;
+    margin-bottom:24px;
+    align-items:stretch;
+  }
+  .panel{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:22px 24px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+  }
+  .panel-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:6px; flex-wrap:wrap; gap:10px;
+  }
+  .panel-head h3{font-size:16.5px; font-weight:700;}
+  .select-fake{
+    display:flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:600; color:var(--text-mid);
+    border:1px solid var(--border); border-radius:8px;
+    padding:8px 12px;
+  }
+  .select-fake svg{width:13px; height:13px;}
+  .legend-row{display:flex; gap:20px; margin:12px 0 6px; flex-wrap:wrap;}
+  .legend-item{display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600; color:var(--text-mid);}
+  .legend-dot{width:9px;height:9px;border-radius:50%;}
+  .chart-wrap{height:260px; position:relative;}
+
+  .donut-wrap{display:flex; flex-direction:column; align-items:center; height:100%;}
+  .donut-canvas-box{position:relative; width:210px; height:210px; margin:10px auto 20px;}
+  .donut-center{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    text-align:center;
+  }
+  .donut-center .num{font-size:26px; font-weight:800; color:var(--text-dark);}
+  .donut-center .lbl{font-size:12px; color:var(--text-mid); font-weight:600;}
+  .status-list{width:100%; display:flex; flex-direction:column; gap:14px;}
+  .status-row{display:flex; align-items:center; justify-content:space-between; font-size:13.5px;}
+  .status-row .left{display:flex; align-items:center; gap:9px; font-weight:600; color:var(--text-dark);}
+  .status-row .right{font-weight:700; color:var(--text-mid);}
+  .status-dot{width:10px;height:10px;border-radius:50%;}
+
+  /* Quick actions */
+  .quick-panel{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:24px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+  }
+  .quick-panel h3{font-size:17px; font-weight:800;}
+  .quick-panel > p{font-size:13px; color:var(--text-mid); margin-top:4px; margin-bottom:20px;}
+  .quick-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:16px;
+  }
+  .quick-btn{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; text-align:center;
+    padding:22px 10px;
+    border-radius:12px;
+    font-size:13.5px; font-weight:700;
+    border:1px solid transparent;
+    transition:transform .15s ease;
+  }
+  .quick-btn:hover{transform:translateY(-3px);}
+  .quick-btn svg{width:22px; height:22px;}
+  .quick-btn.qa-purple{background:#EFF0FE; color:#4F5AF1;}
+  .quick-btn.qa-red{background:var(--red-light); color:var(--red);}
+  .quick-btn.qa-blue{background:var(--sky-light); color:var(--sky);}
+  .quick-btn.qa-gold{background:#FEF3E2; color:var(--gold);}
+  .quick-btn.qa-green{background:var(--green-light); color:var(--green);}
+
+  /* Overlay for mobile sidebar */
+  .overlay{
+    display:none;
+    position:fixed; inset:0; background:rgba(10,10,25,0.4);
+    z-index:90;
+  }
+
+  /* ---------------- Responsive ---------------- */
+  @media (max-width:1180px){
+    .charts-grid{grid-template-columns:1fr;}
+    .stats-grid{grid-template-columns:repeat(2,1fr);}
+    .quick-grid{grid-template-columns:repeat(3,1fr);}
+  }
+
+  @media (max-width:900px){
+    .sidebar{transform:translateX(-100%);}
+    .sidebar.open{transform:translateX(0); box-shadow:10px 0 30px rgba(0,0,0,0.25);}
+    .main{margin-left:0;}
+    .burger{display:flex;}
+    .overlay.show{display:block;}
+    .search-box{max-width:none;}
+  }
+
+  @media (max-width:640px){
+    .stats-grid{grid-template-columns:1fr;}
+    .quick-grid{grid-template-columns:repeat(2,1fr);}
+    .content{padding:20px 16px 40px;}
+    .topbar{padding:0 16px;}
+    .page-head h1{font-size:20px;}
+    .head-actions{width:100%;}
+    .head-actions .btn{flex:1; justify-content:center;}
+    .search-box{display:none;}
+  }
+
+  @media (max-width:420px){
+    .quick-grid{grid-template-columns:1fr 1fr;}
+    .stat-value{font-size:26px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/><path d="M9 12.4l2 2 4-4.6"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title">VIGIL</div>
+        <div class="brand-sub">Super Admin</div>
+      </div>
+    </div>
+
+    <div class="sidebar-scroll">
+      <div class="menu-label">MAIN MENU</div>
+      <ul>
+        <li class="nav-item active">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><path d="M4 11.5 12 5l8 6.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg>
+          Dashboard
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M15.3 14.2c2.5.5 4.4 2.7 4.4 5.8"/></svg>
+          Users
+          <svg class="icon chev" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg>
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M6 21c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M8.3 5.6 12 4l3.7 1.6"/></svg>
+          Manage Children User
+          <svg class="icon chev" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg>
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/></svg>
+          Subscriptions
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><path d="M12 21s7-6.4 7-11.5A7 7 0 0 0 5 9.5C5 14.6 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></svg>
+          Live Tracking
+          <svg class="icon chev" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg>
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.7-1.2A9 9 0 1 0 12 3z"/><path d="M8.3 10.3c0 3.1 2.6 5.3 5.2 5.3"/></svg>
+          WhatsApp Logs
+          <svg class="icon chev" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg>
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10.5 19h3"/></svg>
+          Phone Data
+          <svg class="icon chev" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg>
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="13" rx="2.2"/><path d="M2.5 10.5h19"/><path d="M6 15h4"/></svg>
+          Payments
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><path d="M12 3a5 5 0 0 0-5 5v3.5c0 1-.4 2-1.1 2.7L5 15.5h14l-.9-1.3c-.7-.7-1.1-1.7-1.1-2.7V8a5 5 0 0 0-5-5z"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0"/></svg>
+          Alerts
+          <svg class="icon chev" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg>
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M9.7 19.6 11 17.4h2l1.3 2.2"/></svg>
+          Staff Users
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><path d="M7 2.5h7l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1z"/><path d="M14 2.5V7h4"/><path d="M9 12h6M9 15.5h6M9 9h3"/></svg>
+          CMS
+          <svg class="icon chev" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg>
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M3 6.5l9 6.5 9-6.5"/></svg>
+          Communication
+          <svg class="icon chev" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg>
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M4 20h16"/></svg>
+          Reports
+          <svg class="icon chev" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg>
+        </li>
+        <li class="nav-item">
+          <svg class="icon left-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.2M12 18.8V21M4.9 6.3l1.6 1.6M17.5 16.1l1.6 1.6M3 12h2.2M18.8 12H21M4.9 17.7l1.6-1.6M17.5 7.9l1.6-1.6"/></svg>
+          Settings
+          <svg class="icon chev" viewBox="0 0 24 24"><path d="M9 5l6 7-6 7"/></svg>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="profile-card">
+        <div class="profile-avatar">SA</div>
+        <div class="profile-info">
+          <div class="p-name">Super Admin</div>
+          <div class="p-email">admin@vigil.com</div>
+          <div class="p-status"><span class="dot"></span> Online</div>
+        </div>
+      </div>
+      <a href="#" class="logout-link">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3"/><path d="M14 15l4-3-4-3"/><path d="M18 12H9"/></svg>
+        Logout
+      </a>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main">
+
+    <header class="topbar">
+      <button class="burger" id="burgerBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="search-box">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.5-4.5"/></svg>
+        <input type="text" placeholder="Search here...">
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+        </button>
+        <button class="icon-btn">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 3a5 5 0 0 0-5 5v3.5c0 1-.4 2-1.1 2.7L5 15.5h14l-.9-1.3c-.7-.7-1.1-1.7-1.1-2.7V8a5 5 0 0 0-5-5z"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0"/></svg>
+          <span class="badge">5</span>
+        </button>
+        <div class="avatar-circle">SA</div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <div class="page-head">
+        <div>
+          <h1>Super Admin Dashboard</h1>
+          <p>Welcome back! Here's your system overview.</p>
+        </div>
+        <div class="head-actions">
+          <button class="btn">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M20 11A8 8 0 0 0 6.3 6.3L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0 0 13.7 4.7L20 15.5"/><path d="M20 20v-4.5h-4.5"/></svg>
+            Refresh
+          </button>
+          <button class="btn btn-primary">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-9"/><path d="M15 7h5v5"/></svg>
+            Generate Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon blue">
+              <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M15.3 14.2c2.5.5 4.4 2.7 4.4 5.8"/></svg>
+            </div>
+            <div>
+              <div class="stat-label">Total Users</div>
+              <div class="stat-value">70</div>
+            </div>
+          </div>
+          <span class="stat-trend up">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg>
+            8 today
+          </span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon red">
+              <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 8l4 4M20 8l-4 4"/></svg>
+            </div>
+            <div>
+              <div class="stat-label">Suspended Users</div>
+              <div class="stat-value">7</div>
+            </div>
+          </div>
+          <span class="stat-trend down">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M6 13l6 6 6-6"/></svg>
+            1 today
+          </span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon green">
+              <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15.5 10.5l1.8 1.8 3.2-3.6"/></svg>
+            </div>
+            <div>
+              <div class="stat-label">Active Users</div>
+              <div class="stat-value">63</div>
+            </div>
+          </div>
+          <span class="stat-trend upgreen">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg>
+            12 today
+          </span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon sky">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M12 2.5v19"/><path d="M16.5 6.5c-.7-1-2.2-1.7-4-1.7-2.4 0-4.3 1.3-4.3 3.2 0 4 8.3 2 8.3 5.9 0 1.9-2 3.2-4.3 3.2-2 0-3.6-.8-4.3-1.9"/></svg>
+            </div>
+            <div>
+              <div class="stat-label">Revenue This Month</div>
+              <div class="stat-value">$0</div>
+            </div>
+          </div>
+          <span class="stat-trend neutral">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+            0% than last month
+          </span>
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section class="charts-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>User Overview</h3>
+            <div class="select-fake">This Month
+              <svg class="icon" viewBox="0 0 24 24"><path d="M5 8l7 6 7-6"/></svg>
+            </div>
+          </div>
+          <div class="legend-row">
+            <div class="legend-item"><span class="legend-dot" style="background:#4F5AF1"></span>Total Users</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#12B76A"></span>Active Users</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#F1544F"></span>Suspended Users</div>
+          </div>
+          <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Users by Status</h3>
+            <div class="select-fake">This Month
+              <svg class="icon" viewBox="0 0 24 24"><path d="M5 8l7 6 7-6"/></svg>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut-canvas-box">
+              <canvas id="donutChart"></canvas>
+              <div class="donut-center">
+                <div class="num">70</div>
+                <div class="lbl">Total</div>
+              </div>
+            </div>
+            <div class="status-list">
+              <div class="status-row">
+                <div class="left"><span class="status-dot" style="background:#12B76A"></span>Active Users</div>
+                <div class="right">63 (90%)</div>
+              </div>
+              <div class="status-row">
+                <div class="left"><span class="status-dot" style="background:#F1544F"></span>Suspended Users</div>
+                <div class="right">7 (10%)</div>
+              </div>
+              <div class="status-row">
+                <div class="left"><span class="status-dot" style="background:#D8DAE5"></span>Inactive Users</div>
+                <div class="right">0 (0%)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick actions -->
+      <section class="quick-panel">
+        <h3>Quick Actions</h3>
+        <p>Perform essential actions quickly</p>
+        <div class="quick-grid">
+          <div class="quick-btn qa-purple">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M18 8v5M15.5 10.5h5"/></svg>
+            Create Staff
+          </div>
+          <div class="quick-btn qa-red">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 8l4 4M20 8l-4 4"/></svg>
+            Suspend Account
+          </div>
+          <div class="quick-btn qa-blue">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 3 3 10.5l6.5 2.5L12 21l4-8 5-10z"/><path d="M9.5 13l4-4"/></svg>
+            Send Notification
+          </div>
+          <div class="quick-btn qa-gold">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 3a5 5 0 0 0-5 5v3.5c0 1-.4 2-1.1 2.7L5 15.5h14l-.9-1.3c-.7-.7-1.1-1.7-1.1-2.7V8a5 5 0 0 0-5-5z"/><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0"/></svg>
+            View Alerts
+          </div>
+          <div class="quick-btn qa-green">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M4.5 19h15"/></svg>
+            Export Reports
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- Chart.js: primary CDN, with a fallback if the first one is blocked/unavailable -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  if (typeof Chart === 'undefined') {
+    document.write('<scr' + 'ipt src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></scr' + 'ipt>');
+  }
+</script>
+
+<script>
+  // Sidebar toggle for mobile
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const burgerBtn = document.getElementById('burgerBtn');
+  function toggleSidebar(open){
+    sidebar.classList.toggle('open', open);
+    overlay.classList.toggle('show', open);
+  }
+  burgerBtn.addEventListener('click', ()=> toggleSidebar(!sidebar.classList.contains('open')));
+  overlay.addEventListener('click', ()=> toggleSidebar(false));
+
+  function renderCharts(){
+  if (typeof Chart === 'undefined') {
+    console.error('Chart.js failed to load from both CDNs — check your network/ad-blocker settings.');
+    return;
+  }
+
+  // Line chart
+  const lineCtx = document.getElementById('lineChart').getContext('2d');
+  const labels = ['01 May','05 May','10 May','15 May','20 May','25 May','30 May'];
+  new Chart(lineCtx, {
+    type:'line',
+    data:{
+      labels: labels,
+      datasets:[
+        {
+          label:'Total Users',
+          data:[52,72,70,78,68,78,80,84],
+          borderColor:'#4F5AF1',
+          backgroundColor:'rgba(79,90,241,0.08)',
+          pointBackgroundColor:'#4F5AF1',
+          tension:0.4,
+          fill:true,
+          borderWidth:2.5,
+          pointRadius:4,
+        },
+        {
+          label:'Active Users',
+          data:[36,44,40,42,42,46,48,52],
+          borderColor:'#12B76A',
+          backgroundColor:'rgba(18,183,106,0.06)',
+          pointBackgroundColor:'#12B76A',
+          tension:0.4,
+          fill:true,
+          borderWidth:2.5,
+          pointRadius:4,
+        },
+        {
+          label:'Suspended Users',
+          data:[16,16,15,17,15,20,18,20],
+          borderColor:'#F1544F',
+          backgroundColor:'rgba(241,84,79,0.05)',
+          pointBackgroundColor:'#F1544F',
+          tension:0.4,
+          fill:true,
+          borderWidth:2.5,
+          pointRadius:4,
+        },
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        y:{ beginAtZero:true, max:100, ticks:{stepSize:20, color:'#9598A6', font:{size:11}}, grid:{color:'#F0F1F5'} },
+        x:{ ticks:{color:'#9598A6', font:{size:11}}, grid:{display:false} }
+      }
+    }
+  });
+
+  // Donut chart
+  const donutCtx = document.getElementById('donutChart').getContext('2d');
+  new Chart(donutCtx, {
+    type:'doughnut',
+    data:{
+      labels:['Active Users','Suspended Users','Inactive Users'],
+      datasets:[{
+        data:[63,7,0.001],
+        backgroundColor:['#12B76A','#F1544F','#D8DAE5'],
+        borderWidth:0,
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      cutout:'72%',
+      plugins:{ legend:{display:false}, tooltip:{enabled:true} }
+    }
+  });
+  } // end renderCharts
+
+  if (typeof Chart !== 'undefined') {
+    renderCharts();
+  } else {
+    window.addEventListener('load', renderCharts);
+  }
+</script>
+
+</body>
+</html>
